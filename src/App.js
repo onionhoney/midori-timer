@@ -1,25 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
 
+import { Center } from '@chakra-ui/react';
+import Card from './Card.js';
+
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Center mt={3}>
+        <Card/>
+      </Center>
     </div>
   );
 }
+
+// https://chakra-ui.com/docs/features/color-mode
 
 export default App;
