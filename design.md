@@ -16,35 +16,81 @@
 - On top of weekly comp infra, it should be fairly easy to build an online racing thingy
 
 ## Database schema
-```
+```JS
 {
     "users": {
         "user_id1": {
             "sessions": {
-                "session_id1",
-                "session_id2"
+                "session_id1": true,
+                "session_id2": true,
+            },
+            "comps": {
+                "rms-weekly-216-3x3": true,
+            },
+        }
+    },
+    "comps": {
+        "rms-weekly-216-3x3": {
+            "sessions": {
+                "session_idx": true,
+                "session_idy": true,
+            },
+            "su": {
+                "user_id_1": true,
             }
         }
     },
     "sessions": {
-        "session_id_1": {
+        "session_id1": {
+            "owner": uid,
+            "compname": null,
             "type": "3x3",
             "tag": "roux",
             "solves": {
                 "solve1": {
                     "result": 2.81,
-                    "type": "none" | "+2" | "dnf",
-                    "scramble": 
-                    "date": timestamp
+                    "type": "nonnull,e" | "+2" | "dnf",
+                    "scramble": "RUF",
+                    "date": timestamp,
+                }
+            }
+        },
+        "session_idx": {
+            "owner": uid,
+            "compname": "rms-weekly-216-3x3",
+            "type": "3x3",
+            "tag": "roux",
+            "solves": {
+                "solve1": {
+                    "result": 2.81,
+                    "type": "nonnull,e" | "+2" | "dnf",
+                    "scramble": "RUF",
+                    "date": timestamp,
                 }
             }
         }
     }
-    "comps": {
-
-    }
 }
+
 ```
 
 ## Security Rules
+
+```JS
+"rules": {
+    "users": {
+        "$user_id": {
+            ".read": "auth.uid == $user_id",
+            ".write": "auth.uid == $user_id",
+        }
+    },
+    "sessions": {
+        "$session_id": {
+            ".read": "data.child('owner') == auth.uid",
+            ".write": "data.child('owner') == auth.uid",
+        }
+    }
+}
+
+```
 
