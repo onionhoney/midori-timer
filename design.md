@@ -32,19 +32,22 @@
     },
     "comps": {
         "random_comp_id1": {
-            "name": "rms-weekly-216-3x3",
-            "sessions": {
+            "settings": {
+                "name": "rms-weekly-216-3x3",
+                "su": {
+                    "user_id_1": true,
+                },
+                "scramble": "RUF,RB2L",
+                "type": "3x3",
+                "unlisted": false,
+                "strict_time": false,
+                "start": 123,
+                "end": 234,
+            },
+            "submissions": {
                 "session_idx": true,
                 "session_idy": true,
             },
-            "su": {
-                "user_id_1": true,
-            },
-            "type": "3x3",
-            "unlisted": false,
-            "strict_time": false,
-            "start": 123,
-            "end": 234,
         }
     },
     "sessions": {
@@ -89,19 +92,21 @@
         "$uid": {
             ".read": "auth.uid == $uid",
             ".write": "auth.uid == $uid",
-            ".validate": "newData.hasChildren(['name', 'email', 'wcaid', 'sessions', 'comps'])",
+            ".validate": "newData.hasChildren(['name', 'email', 'sessions', 'comps'])",
         }
     },
     "comps": {
         "$comp_id": {
             "settings": {
                 ".write": "newData.child('su').hasChildren(auth.uid)",
-                ".validate": "newData.hasChildren(['name', 'submissions', 'su', 'type', 'unlisted', 'strict_time', 'start', 'end'])",
+                ".validate": "newData.hasChildren(['name', 'submissions', 'su', 'type', 'unlisted', 'strict_time', 'start', 'end', 'scrambles', 'n_solves' ])",
             },
             "results": {
+                // TODO: limit # of submissions per user
                 "$session_id": {
                     ".write": "root.child("sessions").child($session_id).uid == auth.uid" // must only upload session from self
-                }
+                },
+                ".write": "data.parent().child('settings').child('su').hasChildren(auth.uid)"
             }
         }
     },
@@ -136,6 +141,8 @@ https://firebase.google.com/docs/reference/security/database#haschildchildpath
     - type : event type, "2x2", "3x3", etc.
     - start , end : beginning and ending time (end ignored if strict_time is false)
     - unlisted : boolean, set to true if comp is not publicly searchable. If unlisted, private link is required to access the comp.
+    - scrambles : list of scrambles, comma separated
+    - n_solves : number of solves, should match the length of scrambles
 
 User will be assigned as comp admin.
 

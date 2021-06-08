@@ -1,15 +1,25 @@
 import logo from './logo.svg';
 import './App.css';
-
-import { Center } from '@chakra-ui/react';
+import { CompForm } from './CompForm'
+import { Center, Stack, HStack } from '@chakra-ui/react';
 import Card from './Card.js';
+import SignInScreen from './SignInScreen';
+
 
 function App() {
   return (
     <div className="App">
-      <Center mt={3}>
-        <Card/>
-      </Center>
+      <Stack>
+        <Center mt={3}>
+          <HStack>
+            <SignInScreen />
+            <Card />
+          </HStack>
+        </Center>
+        <Center>
+          <CompForm />
+        </Center>
+      </Stack>
     </div>
   );
 }

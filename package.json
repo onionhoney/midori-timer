@@ -4,7 +4,7 @@
   "private": true,
   "license": "GPL-3.0-only",
   "description": "A cute cube timer",
-  "main": "src/index.js", 
+  "main": "src/index.js",
   "dependencies": {
     "@chakra-ui/react": "^1.6.3",
     "@emotion/react": "^11.4.0",
@@ -13,9 +13,11 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "firebase": "^8.6.5",
+    "firebaseui": "^4.8.0",
     "framer-motion": "^4.1.17",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-firebaseui": "^5.0.2",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.1.2"
   },
@@ -28,7 +30,6 @@
   "eslintConfig": {
     "extends": [
       "react-app",
-            
       "react-app/jest"
     ]
   },
