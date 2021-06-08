@@ -55,7 +55,7 @@
             "owner": uid,
             "compname": null,
             "type": "3x3",
-            "tag": "roux",
+            "tag": "roux", // is tag really necessary? might not work PARTICULARLY well with comps but idk
             "solves": {
                 "solve1": {
                     "result": 2.81,
