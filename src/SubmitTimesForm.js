@@ -15,6 +15,21 @@ const sampleSession = {
 };
 
 function createSession(settings, callback) {
+    // "sessions": {
+    //     "session_id1": {
+    //         "owner": uid,
+    //         "compname": null,
+    //         "type": "3x3",
+    //         "tag": "roux", // is tag really necessary? might not work PARTICULARLY well with comps but idk
+    //         "solves": {
+    //             "solve1": {
+    //                 "result": 2.81,
+    //                 "penalty": "ok" | "+2" | "dnf",
+    //                 "scramble": "RUF",
+    //                 "date": timestamp,
+    //             }
+    //         }
+    //     },
     /*
     settings
     - name : string, unique id of comp
@@ -38,13 +53,13 @@ function createSession(settings, callback) {
     })
 }
 
-export const CompForm = (props) => {
+export const SubmitTimesForm = (props) => {
     let arrayLength = 3 // TODO: Change this based on props
     const [name, setName] = useState("")
     const [message, setMessage] = useState("")
     const [listState, setListState] = useState(new Array(arrayLength).fill(""));
 
-    const scrambleFields = listState.map((currVal, i) => (
+    const timeFields = listState.map((currVal, i) => (
             <Input
                 key={i}
                 value={listState[i]}
@@ -71,12 +86,12 @@ export const CompForm = (props) => {
     }
     return (
         <Stack>
-            <Input 
+            {/* <Input 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="name"
-            />
-            {scrambleFields} 
+            /> */}
+            {timeFields} 
             <Button colorScheme="teal" variant="solid" onClick={handleClick}>
                 Submit
             </Button>

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { Input, Stack, Button, Code} from "@chakra-ui/react"
+import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper} from "@chakra-ui/react"
 import firebase from './firebase';
 
 const sampleComp = {
@@ -7,11 +8,13 @@ const sampleComp = {
     type: "3x3",
     start: new Date("2021-01-01T14:48:00.000+09:00").getTime(),
     end: new Date("2021-10-10T14:48:00.000+09:00").getTime(),
-    unlisted: true,
+    unlisted: false,
+    strict_time: true,
     scrambles: "",
     n_solves: 5
 };
-function createComp(settings, callback) {
+
+async function createComp(settings, callback, setMessage) {
     /*
     settings
     - name : string, unique id of comp
@@ -19,35 +22,56 @@ function createComp(settings, callback) {
     - start , end : beginning and ending time in secs (end ignored if strict_time is false)
     - unlisted : boolean, set to true if comp is not publicly searchable. If unlisted, private link is required to access the comp.
     - scrambles : list of scrambles, comma separated
-    - n_solves : number of solves, should match the length of scrambles
+    - n_solves : number of solves, should match the number of scrambles
     */
     settings = Object.assign({}, sampleComp, settings)
     console.log(settings)
-    let { name, type, start, end, unlisted, scrambles, n_solves } = settings
+    let { name, type, start, end, unlisted, scrambles, n_solves, strict_time } = settings
     let uid = firebase.auth().currentUser.uid
-    firebase.database().ref("comps").push({
-        name,
-        type,
-        start,
-        end,
-        unlisted,
-        scrambles,
-        n_solves,
-        su: {
-            [uid]: true
+    let updates = {};
+    let postKey = firebase.database().ref("comps").push().key;
+    updates[`comps/${postKey}`] = {
+        settings: {
+            name,
+            type,
+            start,
+            end,
+            unlisted,
+            strict_time,
+            scrambles,
+            n_solves,
+            su: {
+                [uid]: true
+            }
         }
-    }, (error) => {
+    }
+    // if listed, add comp_id to comps_public
+
+    // add comp to users/$uid/comp_owned
+    updates[`users/${uid}/comps_owned/${postKey}`] = true
+    firebase.database().ref().update(updates, callback);
+    if(!unlisted) {
+        firebase.database().ref(`comps_public/${postKey}`).set({name, type, start, end, strict_time, n_solves})
+    }
+}
+
+const createPublicComp = (id, callback) => {
+    firebase.database().ref(`comps_public/${id}`).set(true, (error) => {
         callback && callback(error)
     })
 }
 
+const defaultNSolves = 3
+const maxNSolves = 10
 export const CompForm = (props) => {
-    let arrayLength = 3 // TODO: Change this based on props
+    const [nSolves, setNSolves] = useState(defaultNSolves)
     const [name, setName] = useState("")
     const [message, setMessage] = useState("")
-    const [listState, setListState] = useState(new Array(arrayLength).fill(""));
+    const [listState, setListState] = useState(new Array(maxNSolves).fill(""));
+    //const nSolvesNum = Number.isNaN(nSolves) ? defaultNSolves : nSolves
+    const nSolvesNum = nSolves
 
-    const scrambleFields = listState.map((currVal, i) => (
+    const scrambleFields = listState.slice(0, nSolvesNum).map((currVal, i) => (
             <Input
                 key={i}
                 value={listState[i]}
@@ -57,17 +81,25 @@ export const CompForm = (props) => {
         ))
     // Autofill scrambles from scramble generators at some point
 
+    const handleNSolveChange = (str, num) => {
+        if (Number.isNaN(num)) {
+            setNSolves(str)
+        } else {
+            num = Math.min(num, maxNSolves)
+            setNSolves(num)
+        }
+    }
     const handleClick = () => {
         createComp({
             name,
             scrambles: listState.join(",")
         }, (error) => {
-          if (error) {
-            setMessage(`${error.name} : ${error.message}`)
-          } else {
-            setMessage(`Comp saved successfully`)
-          }
-        })
+            if (error) {
+              setMessage(`${error.name} : ${error.message}`)
+            } else {
+              setMessage(`Comp saved successfully`)
+            }
+        }, setMessage)
         console.log(listState)
     }
     return (
@@ -77,6 +109,13 @@ export const CompForm = (props) => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="name"
             />
+            <NumberInput value={nSolves} max={maxNSolves} clampValueOnBlur={true} onChange={handleNSolveChange}>
+                <NumberInputField />
+                <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                </NumberInputStepper>
+            </NumberInput>
             {scrambleFields} 
             <Button colorScheme="teal" variant="solid" onClick={handleClick}>
                 Submit

@@ -20,15 +20,23 @@
 {
     "users": {
         "user_id1": {
-            "name": 
+            "name": "Antonio Kam Ho Tung",
+            "email": "ben@gmail.com",
+            "wcaid": "",
             "sessions": {
                 "session_id1": true,
                 "session_id2": true,
             },
-            "comps": {
+            "comps_owned": {
                 "random_comp_id1": true
             },
+            "comps_joined": {
+                "random_comp_id1": true,
+            }
         }
+    },
+    "comps_public": {
+        "random_comp_id1": true
     },
     "comps": {
         "random_comp_id1": {
@@ -55,11 +63,11 @@
             "owner": uid,
             "compname": null,
             "type": "3x3",
-            "tag": "roux", // is tag really necessary? might not work PARTICULARLY well with comps but idk
+            "tag": "roux",
             "solves": {
                 "solve1": {
                     "result": 2.81,
-                    "type": "nonnull,e" | "+2" | "dnf",
+                    "penalty": "ok" | "+2" | "dnf",
                     "scramble": "RUF",
                     "date": timestamp,
                 }
@@ -73,7 +81,7 @@
             "solves": {
                 "solve1": {
                     "result": 2.81,
-                    "type": "nonnull,e" | "+2" | "dnf",
+                    "penalty": "ok" | "+2" | "dnf",
                     "scramble": "RUF",
                     "date": timestamp,
                 }
@@ -87,27 +95,40 @@
 ## Security Rules
 
 ```JS
-"rules": {
+{
+	"rules": {
     "users": {
         "$uid": {
             ".read": "auth.uid == $uid",
             ".write": "auth.uid == $uid",
-            ".validate": "newData.hasChildren(['name', 'email', 'sessions', 'comps'])",
+            ".validate": "newData.hasChildren(['name', 'email', 'wcaid', 'sessions', 'comps_owned', 'comps_joined'])",
         }
+    },
+    "comps_public": {
+        "$comp_id": {
+            ".write": "root.child('comps').child($comp_id).child('settings').child('su').child(auth.uid).exists()",
+            ".validate": "root.child('comps').child($comp_id).exists()"
+        },
+        ".read": true
     },
     "comps": {
         "$comp_id": {
             "settings": {
-                ".write": "newData.child('su').hasChildren(auth.uid)",
-                ".validate": "newData.hasChildren(['name', 'submissions', 'su', 'type', 'unlisted', 'strict_time', 'start', 'end', 'scrambles', 'n_solves' ])",
+                ".write": "newData.child('su').child(auth.uid).exists()",
+                ".validate": "newData.hasChildren(['name', 'type', 'unlisted', 'strict_time', 'start', 'end', 'scrambles', 'su', 'n_solves' ])",
             },
-            "results": {
-                // TODO: limit # of submissions per user
+            "submissions": {
                 "$session_id": {
-                    ".write": "root.child("sessions").child($session_id).uid == auth.uid" // must only upload session from self
-                },
-                ".write": "data.parent().child('settings').child('su').hasChildren(auth.uid)"
-            }
+                    ".write": "root.child('sessions').child($session_id).child('uid').val() == auth.uid" // must only upload session from self
+                }
+            },
+            ".read": true,
+            ".write": true //".write": "root.child('comps').child($comp_id).child('su').child(auth.uid).exists()"
+        },
+    },
+    "comp_results": {
+        // TODO: limit # of submissions per user
+        "$comp_id": {
         }
     },
     "sessions": {
@@ -116,14 +137,15 @@
                 ".validate": true,
                 // COMMENT: performance issues??
                 "$solve_id": {
-                    ".validate": "newData.hasChildren(['result', 'type', 'scramble', 'date'])"
+                    ".validate": "newData.hasChildren(['result', 'penalty', 'scramble', 'date'])"
                 }
-            }
-            ".read": "data.child('owner') == auth.uid",
-            ".write": "data.child('owner') == auth.uid",
+            },
+            ".read": "data.child('owner').val() == auth.uid",
+            ".write": "data.child('owner').val() == auth.uid",
             ".validate": "newData.hasChildren(['uid', 'compname', 'type', 'tags'])",
         }
     }
+}
 }
 
 ```

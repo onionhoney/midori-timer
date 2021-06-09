@@ -18,6 +18,24 @@ const uiConfig = {
   },
 };
 
+async function createUserIfNotExists(user) {
+  let name = user.displayName;
+  let email = user.email;
+  let uid = user.uid
+  let userRef = firebase.database().ref(`users/${uid}`)
+  let snapshot = await userRef.get()
+  if (!snapshot.exists()) {
+    userRef.set({
+      name,
+      email,
+      wcaid: "",
+      sessions: true,
+      comps_owned: true,
+      comps_joined: true,
+    })
+  }
+}
+
 function SignInScreen() {
   const [isSignedIn, setIsSignedIn] = useState(false); // Local signed-in state.
 
@@ -25,6 +43,9 @@ function SignInScreen() {
   useEffect(() => {
     const unregisterAuthObserver = firebase.auth().onAuthStateChanged(user => {
       setIsSignedIn(!!user);
+      if (!!user) {
+        createUserIfNotExists(user);
+      }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, []);
