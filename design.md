@@ -15,6 +15,33 @@
 
 - On top of weekly comp infra, it should be fairly easy to build an online racing thingy
 
+## Pages
+
+### Comp Management
+- CompAdminBrowsingView(for showing all comps user has created)
+- CompAdminEditingView(for creating or editing a comp, and managing all the results)
+
+### Comp Participation
+- CompBrowsingView (for browsing thru listed comps, and accessing unlisted comps by id, can double as a page to show all comps user have joined)
+- CompSubmissionView (submitting to a comp found through CompBrowingView, can double as a ReviewMySubmissionView by making all the fields read-only)
+
+### Timer
+
+- CurrentTimeView
+- ScramblerView
+- DrawScrambleView
+
+- CurrentSessionTableView (parent view that includes session switching button + resultsTableView or MoAoView)
+	- ResultsTableView
+	- ResultsStatsView 
+	- MoAoResultsTableView
+	- MoAoResultsStatsView 
+
+- SessionManagementView (for showing all sessions, and session syncing)
+
+- MidoriTimerView (top level view that integrates everything)
+
+
 ## Database schema
 ```JS
 {
